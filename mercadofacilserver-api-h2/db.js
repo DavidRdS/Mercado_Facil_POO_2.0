@@ -2,191 +2,106 @@
 
 // Este arquivo encapsula a lógica de conexão e interação com o SQLite.
 
-
-
 const sqlite3 = require('sqlite3').verbose();
-
 const path = require('path');
 
-
-
 // Caminho para o arquivo do banco de dados.
-
 const DB_PATH = path.join(__dirname, 'mercadofacil.db');
 
-
-
 // Cria uma nova instância do banco de dados
-
 const db = new sqlite3.Database(DB_PATH, (err) => {
-
     if (err) {
-
         console.error('Erro ao abrir o banco de dados:', err.message);
-
     } else {
-
         console.log('✅ Conectado ao banco de dados SQLite.');
-
         inicializarBancoDeDados();
-
     }
-
 });
 
-
-
 /**
-
- * Cria a tabela PRODUTO com a coluna url_imagem e insere dados de teste.
-
+ * Inicializa o banco criando tabelas e adicionando dados iniciais
  */
-
 function inicializarBancoDeDados() {
-
-    // Adiciona a coluna url_imagem na criação da tabela
-
     db.serialize(() => {
 
+        // ---------- TABELA PRODUTO ----------
         db.run(`
-
             CREATE TABLE IF NOT EXISTS PRODUTO (
-
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-
                 nome TEXT NOT NULL,
-
                 preco REAL NOT NULL,
-
-                url_imagem TEXT -- Coluna para a foto
-
+                url_imagem TEXT
             )
-
         `, (err) => {
-
             if (err) {
-
                 console.error("Erro ao criar tabela PRODUTO:", err.message);
-
                 return;
-
             }
 
-           
-
-            // Inserir dados de teste SÓ SE A TABELA ESTIVER VAZIA
-
             db.get("SELECT COUNT(*) AS count FROM PRODUTO", (err, row) => {
-
                 if (row && row.count === 0) {
-
-                    console.log("Inserindo dados iniciais na tabela PRODUTO...");
-
-                   
+                    console.log("📌 Inserindo dados iniciais na tabela PRODUTO...");
 
                     const stmt = db.prepare("INSERT INTO PRODUTO (nome, preco, url_imagem) VALUES (?, ?, ?)");
 
-                   
-
-                    // URLs de imagens de exemplo de tecnologia (Unsplash)
-
-                    stmt.run("Laptop Gamer Xtreme", 5999.90, "https://images.unsplash.com/photo-1541808605417-7e6153a5c2d3?q=80&w=1500&auto=format&fit=crop");
-
-                    stmt.run("Mouse Sem Fio Ultra-Ergonômico", 149.90, "https://images.unsplash.com/photo-1527814050519-7243e8d93339?q=80&w=1500&auto=format&fit=crop");
-
-                    stmt.run("Monitor Gamer 27\" 4K", 2800.00, "https://images.unsplash.com/photo-1596707447262-d965e6d8c0b9?q=80&w=1500&auto=format&fit=crop");
-
-                    stmt.run("SSD NVMe 2TB Gen4", 899.50, "https://images.unsplash.com/photo-1599370725515-3882a8844837?q=80&w=1500&auto=format&fit=crop");
-
-                    stmt.run("Teclado Mecânico RGB Pro", 450.00, "https://images.unsplash.com/photo-1627476839886-27a3c306d88b?q=80&w=1500&auto=format&fit=crop");
-
-                    stmt.run("Headset Wireless Hi-Fi", 699.00, "https://images.unsplash.com/photo-1546435017-d079493f0b24?q=80&w=1500&auto=format&fit=crop");
-
-
+                    stmt.run("Laptop Gamer Xtreme", 5999.90, "https://www.asus.com/media/Odin/Websites/global/ProductLine/20200824120814.jpg");
+                    stmt.run("Mouse Sem Fio Ultra-Ergonômico", 149.90, "https://down-br.img.susercontent.com/file/d73b0451aa2ba881e9b4ed0fbe4b4be4");
+                    stmt.run("Monitor Gamer 27\" 4K", 2800.00, "https://i.zst.com.br/thumbs/12/18/38/1909415800.jpg");
+                    stmt.run("SSD NVMe 2TB Gen4", 899.50, "https://down-br.img.susercontent.com/file/br-11134207-7r98o-mctsz0t6p6gx43_tn.webp");
+                    stmt.run("Teclado Mecânico RGB Pro", 450.00, "https://images.tcdn.com.br/img/img_prod/745260/avantpro_comece_a_usar_o_avantpro_entrar_nao_possui_uma_conta_crie_uma_aqui_teclado_mecanico_gamer_6_237_1_d5733ebcd2e25afeccfb10edfb570ad2.png");
+                    stmt.run("Headset Wireless Hi-Fi", 699.00, "https://mirandacomputacao.jetassets.com.br/produto/48627-principal.png");
 
                     stmt.finalize(() => {
-
-                        console.log("Dados iniciais inseridos com sucesso.");
-
+                        console.log("✔ Dados iniciais inseridos.");
                     });
-
                 }
-
             });
+        });
 
+        // ---------- TABELA PEDIDOS (nova tabela que você pediu) ----------
+        db.run(`
+            CREATE TABLE IF NOT EXISTS PEDIDOS (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                produtoId INTEGER,
+                nome TEXT,
+                email TEXT,
+                endereco TEXT,
+                valor REAL,
+                data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `, (err) => {
+            if (err) {
+                console.error("Erro ao criar tabela PEDIDOS:", err.message);
+            } else {
+                console.log("🧾 Tabela PEDIDOS pronta.");
+            }
         });
 
     });
-
 }
 
-
-
 /**
-
- * Função para executar queries SELECT que retornam múltiplos ou zero resultados.
-
+ * SELECT que retorna múltiplos resultados
  */
-
 function all(sql, params = []) {
-
     return new Promise((resolve, reject) => {
-
         db.all(sql, params, (err, rows) => {
-
-            if (err) {
-
-                reject(err);
-
-            } else {
-
-                resolve(rows);
-
-            }
-
+            if (err) reject(err);
+            else resolve(rows);
         });
-
     });
-
 }
-
-
 
 /**
-
- * Função para executar queries INSERT, UPDATE ou DELETE.
-
+ * INSERT, UPDATE e DELETE
  */
-
 function run(sql, params = []) {
-
     return new Promise((resolve, reject) => {
-
         db.run(sql, params, function (err) {
-
-            if (err) {
-
-                reject(err);
-
-            } else {
-
-                // Retorna o ID da última linha inserida (útil para POST)
-
-                resolve({ id: this.lastID });
-
-            }
-
+            if (err) reject(err);
+            else resolve({ id: this.lastID });
         });
-
     });
-
 }
-
-
 
 module.exports = { all, run };
-
-
-
-
-
