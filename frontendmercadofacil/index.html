@@ -145,7 +145,8 @@
                 const produtoId = event.target.getAttribute('data-id');
                 // Substitua 'alert' por um modal ou redirecionamento real para o carrinho
                 console.log(`Produto ID ${produtoId} (${produto.nome}) adicionado ao carrinho!`);
-                alert(`Sucesso! ${produto.nome} (ID: ${produtoId}) adicionado ao carrinho. (Simulação)`);
+                window.location.href = './pagamento.html?id=' + produto.id;
+
             });
 
             return card;
