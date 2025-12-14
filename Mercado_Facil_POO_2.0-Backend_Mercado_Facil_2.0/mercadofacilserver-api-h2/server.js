@@ -1,23 +1,29 @@
-// server.js (Adicione esta linha no TOPO)
+// server.js
 console.log("--- Tentando iniciar o script ---"); 
 
-// ** NOVO: Importa o CORS **
 const cors = require('cors'); 
 const express = require('express');
-// Importa as funções 'all' (para SELECT) e 'run' (para INSERT/UPDATE/DELETE) do db.js
 const { all, run } = require('./db'); 
+const authRoutes = require('./authController');
 
 const app = express();
-
-// ** NOVO: Habilita o CORS para todas as origens (ideal para desenvolvimento) **
-app.use(cors()); 
-
-app.use(express.json()); // Habilita o Express a ler payloads JSON nas requisições
 const PORT = 3000;
 
-// Rota de Teste Simples
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// Rotas de autenticação (LOGIN)
+app.use('/api', authRoutes);
+
+// Rota de teste
 app.get('/', (req, res) => {
     res.send('API MercadoFácil Server está rodando!');
+});
+
+// Inicialização do servidor
+app.listen(PORT, () => {
+    console.log(`🚀 API rodando em http://localhost:${PORT}`);
 });
 
 // ----------------------------------------------------
