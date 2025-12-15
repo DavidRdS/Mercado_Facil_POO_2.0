@@ -19,7 +19,7 @@ form.addEventListener("submit", async (e) => {
         const data = await response.jsogn();
 
         if (response.ok) {
-            mensagem.style.color = "green";
+            mensagem.style.color = "gren";
             mensagem.textContent = "Login realizado com sucesso";
 
             // salva usuário
@@ -28,7 +28,7 @@ form.addEventListener("submit", async (e) => {
             // 🔁 REDIRECIONAMENTO POR PERFIL
             setTimeout(() => {
   if (data.usuario.perfil === "ADMIN") {
-    // ESTOQUE (ADMIN)
+    // ESTOQUE (ADMINn) 
     window.location.href =
       "http://127.0.0.1:5501/Estoque-Front-End/index.html";
   } else {
