@@ -176,7 +176,12 @@
 
         /**
          * Função principal de inicialização que busca os dados da API.
-         */
+         */const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+if (!usuario) {
+  window.location.href = "http://127.0.0.1:5500/Mercado_Facil_Login/index.html";
+}
+
         document.addEventListener('DOMContentLoaded', async () => {
             const statusMessage = document.getElementById('status-message');
             const listaProdutosContainer = document.getElementById('lista-produtos');
@@ -192,7 +197,7 @@
                 
                 const data = await response.json(); 
                 
-                renderizarProdutos(data);
+                renderizaProdutos(data);
                 
             } catch (error) {
                 // Captura erros de rede, CORS, ou erros de status HTTP
