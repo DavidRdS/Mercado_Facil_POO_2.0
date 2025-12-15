@@ -6,10 +6,9 @@ form.addEventListener("submit", async (e) => {
 
     const login = document.getElementById("login").value;
     const senha = document.getElementById("senha").value;
-    const perfilSelecionado = document.getElementById("perfil").value;
 
     try {
-        const response = await fetch("http://localhost:3000/login", {
+        const response = await fetch("http://localhost:3000/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -17,34 +16,37 @@ form.addEventListener("submit", async (e) => {
             body: JSON.stringify({ login, senha })
         });
 
-        const data = await response.json();
+        const data = await response.jsogn();
 
         if (response.ok) {
-            // valida perfil
-            if (perfilSelecionado !== data.usuario.perfil) {
-                mensagem.style.color = "red";
-                mensagem.textContent = "Perfil selecionado não corresponde ao usuário.";
-                return;
-            }
-
             mensagem.style.color = "green";
-            mensagem.textContent = data.mensagem;
+            mensagem.textContent = "Login realizado com sucesso";
 
+            // salva usuário
             localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-            // redirecionamento por perfil
+            // 🔁 REDIRECIONAMENTO POR PERFIL
             setTimeout(() => {
-                if (data.usuario.perfil === "ADMIN") {
-                    window.location.href = "admin.html";
-                } else {
-                    window.location.href = "dashboard.html";
-                }
-            }, 1000);
+  if (data.usuario.perfil === "ADMIN") {
+    // ESTOQUE (ADMIN)
+    window.location.href =
+      "http://127.0.0.1:5501/Estoque-Front-End/index.html";
+  } else {
+    // LOJA (USUÁRIO)
+    window.location.href =
+      "http://127.0.0.1:5501/Front-End-Mercado-Facil/frontendmercadofacil/index.html";
+  }
+}, 300);
+
+
+
+
 
         } else {
             mensagem.style.color = "red";
             mensagem.textContent = data.erro;
         }
+
     } catch (error) {
         mensagem.style.color = "red";
         mensagem.textContent = "Erro ao conectar com o servidor";
