@@ -7,6 +7,22 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (!usuario || usuario.perfil !== "ADMIN") {
+      alert("Acesso restrito. Apenas administradores.");
+      window.location.href =
+        "http://127.0.0.1:5500/Mercado_Facil_Login/index.html";
+    }
+  });
+</script>
+
+
+
+
     <div class="container">
         <!-- Sidebar -->
         <aside class="sidebar">
